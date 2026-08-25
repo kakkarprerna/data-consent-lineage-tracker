@@ -283,7 +283,6 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
-    backface-visibility: hidden;
   }
   .entry-row {
     all: unset;
@@ -426,8 +425,6 @@
     background: var(--bg);
     padding-top: 4px;
     padding-bottom: 10px;
-    isolation: isolate;
-    transform: translateZ(0);
   }
   .ledger-wrap {
     background: var(--surface-sunken);
@@ -441,10 +438,6 @@
     padding-right: 4px;
     scrollbar-width: thin;
     scrollbar-color: var(--ink-faint) transparent;
-    -webkit-overflow-scrolling: touch;
-    transform: translateZ(0);
-    will-change: transform;
-    contain: content;
   }
   #ledger::-webkit-scrollbar { width: 8px; }
   #ledger::-webkit-scrollbar-track { background: transparent; }
