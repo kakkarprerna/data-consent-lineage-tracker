@@ -2,7 +2,7 @@
 
 A working prototype of an internal audit tool for AI platform teams: it tracks every data source feeding an AI feature, whether consent to use that data is still valid, and where the data flows once it's collected.
 
-**[Live demo]((https://kakkarprerna.github.io/data-consent-lineage-tracker/)** — enable GitHub Pages (see below) and drop the link here.
+**[Live demo](https://kakkarprerna.github.io/data-consent-lineage-tracker/)** — enable GitHub Pages (see below) and drop the link here.
 
 ## The problem
 
