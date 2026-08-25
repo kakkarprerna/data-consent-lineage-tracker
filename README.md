@@ -10,7 +10,7 @@ AI features quietly accumulate data dependencies: chat transcripts, voice record
 
 ## What this demonstrates
 
-This is a companion piece to [ai-governance-console](../ai-governance-console), which covers feature-level policy and approval workflows. This one is scoped narrower and deeper: consent status and data lineage specifically, including the workflow gaps that matter for a compliance owner —
+This is a companion piece to [ai-governance-console](https://github.com/kakkarprerna/ai-governance-console), which covers feature-level policy and approval workflows. This one is scoped narrower and deeper: consent status and data lineage specifically, including the workflow gaps that matter for a compliance owner —
 
 - **Status is only useful with an action attached.** Each consent state (granted, expiring, expired, revoked, missing) carries its own next step — send a renewal reminder, request a renewal, archive from the pipeline, send a consent request — rather than just flagging a problem and leaving it there.
 - **Bulk triage.** Filtering to a single status surfaces a bar to action every matching entry at once, not one at a time.
