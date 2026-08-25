@@ -283,6 +283,7 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
+    backface-visibility: hidden;
   }
   .entry-row {
     all: unset;
@@ -416,48 +417,95 @@
     .chevron, .btn { transition: none; }
     .toast { animation: none; }
   }
+
+  /* ---------------- Sticky header + scrollable ledger ---------------- */
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: var(--bg);
+    padding-top: 4px;
+    padding-bottom: 10px;
+    isolation: isolate;
+    transform: translateZ(0);
+  }
+  .ledger-wrap {
+    background: var(--surface-sunken);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: 10px;
+  }
+  #ledger {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-faint) transparent;
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: transform;
+    contain: content;
+  }
+  #ledger::-webkit-scrollbar { width: 8px; }
+  #ledger::-webkit-scrollbar-track { background: transparent; }
+  #ledger::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-pill); }
+  #ledger::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+  .ledger-count {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    text-align: right;
+    padding: 0 4px 6px;
+  }
+  @media (max-width: 680px) {
+    #ledger { max-height: 62vh; }
+  }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <div class="topbar">
-    <div>
-      <h1>Data Consent &amp; Lineage Dashboard</h1>
-      <p class="subtitle">Every data source feeding an AI feature, its consent status, and where it flows. Add sources manually, import a batch, or connect a pipeline to sync automatically.</p>
+  <div class="sticky-header">
+    <div class="topbar">
+      <div>
+        <h1>Data Consent &amp; Lineage Dashboard</h1>
+        <p class="subtitle">Every data source feeding an AI feature, its consent status, and where it flows. Add sources manually, import a batch, or connect a pipeline to sync automatically.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" id="openAddModal"></button>
+      </div>
     </div>
-    <div class="topbar-actions">
-      <button class="btn btn-primary" id="openAddModal"></button>
+
+    <section class="stats-grid" id="statStrip"></section>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="controls-bar">
+      <div class="search-wrap"></div>
+      <div class="status-chips" id="statusChips"></div>
+      <select class="select" id="windowSelect">
+        <option value="all">All expiry windows</option>
+        <option value="7">Due in next 7 days</option>
+        <option value="14">Due in next 14 days</option>
+        <option value="30">Due in next 30 days</option>
+        <option value="60">Due in next 60 days</option>
+        <option value="past_due">Already past due</option>
+      </select>
+      <select class="select" id="sortSelect">
+        <option value="urgency">Sort: Urgency first</option>
+        <option value="expiry-asc">Sort: Expiry, soonest</option>
+        <option value="expiry-desc">Sort: Expiry, latest</option>
+        <option value="name">Sort: Name, A–Z</option>
+      </select>
     </div>
+
+    <div id="bulkBarSlot"></div>
   </div>
 
-  <section class="stats-grid" id="statStrip"></section>
-
-  <div class="legend" id="legend"></div>
-
-  <div class="controls-bar">
-    <div class="search-wrap"></div>
-    <div class="status-chips" id="statusChips"></div>
-    <select class="select" id="windowSelect">
-      <option value="all">All expiry windows</option>
-      <option value="7">Due in next 7 days</option>
-      <option value="14">Due in next 14 days</option>
-      <option value="30">Due in next 30 days</option>
-      <option value="60">Due in next 60 days</option>
-      <option value="past_due">Already past due</option>
-    </select>
-    <select class="select" id="sortSelect">
-      <option value="urgency">Sort: Urgency first</option>
-      <option value="expiry-asc">Sort: Expiry, soonest</option>
-      <option value="expiry-desc">Sort: Expiry, latest</option>
-      <option value="name">Sort: Name, A–Z</option>
-    </select>
+  <div class="ledger-wrap">
+    <div class="ledger-count" id="ledgerCount"></div>
+    <section class="ledger" id="ledger"></section>
+    <p class="empty-state" id="emptyState" hidden>No sources match this filter.</p>
   </div>
-
-  <div id="bulkBarSlot"></div>
-
-  <section class="ledger" id="ledger"></section>
-  <p class="empty-state" id="emptyState" hidden>No sources match this filter.</p>
 
   <footer class="fine-print">Prototype register for internal audit review · Not a substitute for legal advice</footer>
 </div>
@@ -758,6 +806,8 @@ function renderLedger() {
   const list = getSorted(getFiltered());
   const ledger = document.getElementById("ledger");
   const empty = document.getElementById("emptyState");
+  const countEl = document.getElementById("ledgerCount");
+  countEl.textContent = list.length ? `${list.length} of ${DATA.length} source${DATA.length===1?"":"s"}` : "";
   if (list.length === 0) { ledger.innerHTML = ""; empty.hidden = false; return; }
   empty.hidden = true;
 
